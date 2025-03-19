@@ -1,23 +1,42 @@
-# Invest - Plataforma de Investimentos
+# Invest - Calculadora de Juros Compostos 💵
 
 ## 📊 Sobre o Projeto
 
-Invest é uma plataforma web moderna desenvolvida para acompanhamento de investimentos em tempo real. O projeto oferece uma interface intuitiva para visualização de índices da B3, ações brasileiras e criptomoedas, além de uma calculadora de investimentos.
+Invest é uma plataforma web moderna focada em auxiliar investidores a calcular e visualizar o poder dos juros compostos em seus investimentos. Além da calculadora principal, o projeto oferece uma interface intuitiva para acompanhamento de índices da B3, ações brasileiras e criptomoedas em tempo real.
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades Principais
 
--  **Índices B3**: Acompanhamento em tempo real dos principais índices da bolsa brasileira
+### Calculadora de Juros Compostos
 
-   -  Ibovespa
-   -  Índice Brasil 100
-   -  Small Cap
-   -  MidLarge Cap
-   -  Índice de Dividendos
-   -  Índice de Fundos Imobiliários
-   -  Índice de Governança Corporativa
-   -  Índice de Sustentabilidade
+-  **Simulação Detalhada**:
 
--  **Ações Brasileiras**: Monitoramento das principais ações do mercado
+   -  Cálculo preciso de juros compostos
+   -  Projeção personalizada de rendimentos
+   -  Visualização em gráficos interativos
+   -  Tabela detalhada mês a mês
+   -  Análise de diferentes cenários de investimento
+
+-  **Campos de Entrada**:
+   -  Valor inicial do investimento
+   -  Aportes mensais
+   -  Taxa de juros
+   -  Período do investimento
+   -  Opções de rentabilidade
+
+### Acompanhamento de Mercado
+
+-  **Índices B3**: Monitoramento dos principais índices
+
+   -  Ibovespa (IBOV)
+   -  Índice Brasil 100 (IBXX)
+   -  Small Cap (SMLL)
+   -  MidLarge Cap (MLCX)
+   -  Índice de Dividendos (IDIV)
+   -  Índice de Fundos Imobiliários (IFIX)
+   -  Índice de Governança Corporativa (IGCT)
+   -  Índice de Sustentabilidade (ISEE)
+
+-  **Ações Brasileiras**: Cotações das principais ações
 
    -  Petrobras (PETR4)
    -  Vale (VALE3)
@@ -28,8 +47,7 @@ Invest é uma plataforma web moderna desenvolvida para acompanhamento de investi
    -  Magazine Luiza (MGLU3)
    -  WEG (WEGE3)
 
--  **Criptomoedas**: Cotações atualizadas das principais criptomoedas
-
+-  **Criptomoedas**: Valores atualizados
    -  Bitcoin (BTC)
    -  Ethereum (ETH)
    -  Binance Coin (BNB)
@@ -38,12 +56,6 @@ Invest é uma plataforma web moderna desenvolvida para acompanhamento de investi
    -  XRP
    -  Dogecoin (DOGE)
    -  Polkadot (DOT)
-
--  **Calculadora de Investimentos**: Ferramenta para simulação de investimentos
-   -  Cálculo de juros compostos
-   -  Projeção de rendimentos
-   -  Visualização em gráficos
-   -  Tabela detalhada mês a mês
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -58,7 +70,7 @@ Invest é uma plataforma web moderna desenvolvida para acompanhamento de investi
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/invest.git
+git clone https://github.com/isaacggr/invest-tech.git
 ```
 
 2. Instale as dependências:
@@ -100,23 +112,15 @@ O projeto é totalmente responsivo e adaptável a diferentes tamanhos de tela:
 ## 🤝 Contribuição
 
 1. Faça um Fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
+2. Crie uma branch para sua feature (`git checkout -b feature/NovaFuncionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/NovaFuncionalidade`)
 5. Abra um Pull Request
 
 ## 📝 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 📧 Contato
-
-Para dúvidas, sugestões ou contribuições, entre em contato através de:
-
--  Email: [seu-email@exemplo.com]
--  LinkedIn: [seu-linkedin]
--  GitHub: [seu-github]
-
 ---
 
-Desenvolvido com ❤️ por [Seu Nome]
+Desenvolvido com ❤️ por [Isaac Gregorio](https://github.com/isaacggr)
