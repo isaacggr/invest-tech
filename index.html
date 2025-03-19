@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+   <head>
+      <meta charset="UTF-8" />
+      <link rel="icon" type="image/svg+xml" href="/money.svg" />
+      <meta
+         name="viewport"
+         content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1"
+      />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link
+         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+         rel="stylesheet"
+      />
+      <title>Calculadora de Investimentos</title>
+      <style>
+         html {
+            height: 100%;
+            scroll-behavior: smooth;
+         }
+
+         body {
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto !important;
+            position: relative;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+         }
+
+         #root {
+            min-height: 100%;
+            width: 100%;
+            overflow-y: visible !important;
+            position: relative;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="root"></div>
+      <script type="module" src="/src/main.tsx"></script>
+   </body>
+</html>
