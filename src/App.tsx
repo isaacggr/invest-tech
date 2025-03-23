@@ -6,6 +6,7 @@ import IndicesB3 from './components/IndicesB3';
 import AcoesBrasil from './components/AcoesBrasil';
 import Criptomoedas from './components/Criptomoedas';
 import Footer from './components/Footer';
+import ThemeToggle from './components/ThemeToggle';
 
 interface Detalhe {
    mes: number;
@@ -128,6 +129,7 @@ const App: React.FC = () => {
 
    return (
       <div className="calculadora-container">
+         <ThemeToggle />
          <h1>Calculadora de Investimentos</h1>
 
          <div className="card-container">
