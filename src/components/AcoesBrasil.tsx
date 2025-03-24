@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AcaoAPI, ValoresFallbackType } from '../types';
 
 interface Acao {
    id: string;
@@ -10,14 +11,19 @@ interface Acao {
    ultimaAtualizacao: string;
 }
 
-interface AcaoAPI {
-   symbol: string;
-   name: string;
-   close: number;
-   change: number;
-   volume: number;
-   market_cap: number;
-   updated_at: string;
+// Adicionar interface para o item da API
+interface ApiItem {
+   ticker?: string;
+   symbol?: string;
+   codigo?: string;
+   preco?: number;
+   valor?: number;
+   close?: number;
+   price?: number;
+   variacao?: number;
+   change?: number;
+   dailyChange?: number;
+   dataAtualizacao?: string;
 }
 
 const AcoesBrasil: React.FC = () => {
@@ -72,7 +78,10 @@ const AcoesBrasil: React.FC = () => {
          ];
 
          // Valores atualizados de fallback (dados reais atuais)
-         const valoresFallback = {
+         const valoresFallback: ValoresFallbackType<{
+            valor: number;
+            variacao: number;
+         }> = {
             PETR4: { valor: 37.92, variacao: 0.85 },
             VALE3: { valor: 66.85, variacao: -0.48 },
             ITUB4: { valor: 34.92, variacao: 0.56 },
@@ -115,8 +124,9 @@ const AcoesBrasil: React.FC = () => {
 
             // Mapear os dados da Partnr API para o formato do componente
             const acoesMapeadas = acoesParaBuscar.map((acao, index) => {
+               // Atualizar a chamada do find com a tipagem
                const dadoAcao = dadosAPI.find(
-                  (item) =>
+                  (item: ApiItem) =>
                      item.ticker === acao.codigo ||
                      item.symbol === acao.codigo ||
                      item.codigo === acao.codigo

@@ -1,19 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-
-interface Detalhe {
-   mes: number;
-   rendimento: number;
-   valorInvestido: number;
-   valorAcumulado: number;
-   aporteMensal: number;
-}
+import { DadosMensais } from '../types';
 
 interface TabelaDetalhesProps {
-   detalhes: Detalhe[];
+   dadosMensais: DadosMensais[];
 }
 
 const TabelaDetalhes: React.FC<TabelaDetalhesProps> = React.memo(
-   ({ detalhes }) => {
+   ({ dadosMensais }) => {
       const [filtroMes, setFiltroMes] = useState<string>('todos');
       const [isMobile, setIsMobile] = useState<boolean>(false);
 
@@ -37,18 +30,20 @@ const TabelaDetalhes: React.FC<TabelaDetalhesProps> = React.memo(
 
       // Função para filtrar dados baseado na seleção
       const filtrarDados = useCallback(() => {
-         if (!detalhes || detalhes.length === 0) {
+         if (!dadosMensais || dadosMensais.length === 0) {
             return [];
          }
 
          switch (filtroMes) {
             case 'primeiro-ano':
-               return detalhes.filter((item) => item.mes <= 12);
+               return dadosMensais.filter(
+                  (item: DadosMensais) => item.mes <= 12
+               );
             case 'ultimo-ano':
-               return detalhes.slice(-12);
+               return dadosMensais.slice(-12);
             case 'intervalos':
                // Exibe apenas valores a cada 12 meses
-               return detalhes.filter(
+               return dadosMensais.filter(
                   (item) => item.mes === 1 || item.mes % 12 === 0
                );
             case 'importantes':
@@ -65,14 +60,16 @@ const TabelaDetalhes: React.FC<TabelaDetalhesProps> = React.memo(
                   360, // 30 anos
                   420, // 35 anos
                   480, // 40 anos
-                  detalhes.length, // Último mês
+                  dadosMensais.length, // Último mês
                ]);
-               return detalhes.filter((item) => mesesImportantes.has(item.mes));
+               return dadosMensais.filter((item) =>
+                  mesesImportantes.has(item.mes)
+               );
             case 'todos':
             default:
-               return detalhes;
+               return dadosMensais;
          }
-      }, [detalhes, filtroMes]);
+      }, [dadosMensais, filtroMes]);
 
       // Memoiza os dados filtrados
       const dadosFiltrados = useCallback(filtrarDados, [filtrarDados])();
@@ -88,7 +85,7 @@ const TabelaDetalhes: React.FC<TabelaDetalhesProps> = React.memo(
       }, []);
 
       // Se não houver dados, retorna uma mensagem
-      if (!detalhes || detalhes.length === 0) {
+      if (!dadosMensais || dadosMensais.length === 0) {
          return (
             <div className="mensagem-info mensagem-card">
                <p>
@@ -159,7 +156,7 @@ const TabelaDetalhes: React.FC<TabelaDetalhesProps> = React.memo(
                      : 'Exibindo ' +
                        dadosFiltrados.length +
                        ' de ' +
-                       detalhes.length +
+                       dadosMensais.length +
                        ' meses.'}
                </div>
             )}

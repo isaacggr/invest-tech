@@ -7,21 +7,14 @@ import AcoesBrasil from './components/AcoesBrasil';
 import Criptomoedas from './components/Criptomoedas';
 import Footer from './components/Footer';
 import ThemeToggle from './components/ThemeToggle';
-
-interface Detalhe {
-   mes: number;
-   rendimento: number;
-   valorInvestido: number;
-   valorAcumulado: number;
-   aporteMensal: number;
-}
+import { DadosMensais } from './types';
 
 const App: React.FC = () => {
    const [valorInicial, setValorInicial] = useState<number>(0);
    const [aporteMensal, setAporteMensal] = useState<number>(0);
    const [taxaJuros, setTaxaJuros] = useState<number>(0);
    const [periodo, setPeriodo] = useState<number>(0);
-   const [detalhes, setDetalhes] = useState<Detalhe[]>([]);
+   const [detalhes, setDetalhes] = useState<DadosMensais[]>([]);
    const [mostrarResultados, setMostrarResultados] = useState<boolean>(false);
    const [totalInvestido, setTotalInvestido] = useState<number>(0);
    const [totalRendimentos, setTotalRendimentos] = useState<number>(0);
@@ -50,7 +43,7 @@ const App: React.FC = () => {
       // Converter taxa anual para mensal
       const taxaMensal = (Math.pow(1 + taxaJuros / 100, 1 / 12) - 1) * 100;
 
-      let detalhesCalculados: Detalhe[] = [];
+      let detalhesCalculados: DadosMensais[] = [];
       let saldoAtual = valorInicial;
       let totalAportes = valorInicial;
 
@@ -68,19 +61,22 @@ const App: React.FC = () => {
          // Adicionar dados aos detalhes
          detalhesCalculados.push({
             mes: i,
-            rendimento: rendimentoMensal,
             valorInvestido: totalAportes,
+            rendimento: rendimentoMensal,
             valorAcumulado: saldoAtual,
             aporteMensal: aporteMensal,
+            totalInvestido: totalAportes,
+            jurosAcumulado: saldoAtual - totalAportes,
+            totalAcumulado: saldoAtual,
          });
       }
 
       // Atualizar estados com os resultados finais
       if (detalhesCalculados.length > 0) {
          const ultimo = detalhesCalculados[detalhesCalculados.length - 1];
-         setTotalInvestido(ultimo.valorInvestido);
-         setTotalRendimentos(ultimo.valorAcumulado - ultimo.valorInvestido);
-         setTotalFinal(ultimo.valorAcumulado);
+         setTotalInvestido(ultimo.totalInvestido || 0);
+         setTotalRendimentos(ultimo.jurosAcumulado || 0);
+         setTotalFinal(ultimo.totalAcumulado || 0);
          setDetalhes(detalhesCalculados);
          setMostrarResultados(true);
       }
@@ -249,13 +245,13 @@ const App: React.FC = () => {
          {/* Gráfico */}
          <div className="card-principal grafico-card">
             <h2>Evolução do Patrimônio</h2>
-            <GraficoInvestimento dados={detalhes} />
+            <GraficoInvestimento dadosMensais={detalhes} />
          </div>
 
          {/* Tabela de Detalhes */}
          <div className="card-principal tabela-card">
             <h2>Detalhamento Mês a Mês</h2>
-            <TabelaDetalhes detalhes={detalhes} />
+            <TabelaDetalhes dadosMensais={detalhes} />
          </div>
 
          {/* Índices B3 */}

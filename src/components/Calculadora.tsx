@@ -4,6 +4,7 @@ import FormCalculadora from './FormCalculadora';
 import ResultadoCards from './ResultadoCards';
 import GraficoInvestimento from './GraficoInvestimento';
 import TabelaDetalhes from './TabelaDetalhes';
+import { DadosMensais } from '../types';
 
 const Calculadora: React.FC = () => {
    const {

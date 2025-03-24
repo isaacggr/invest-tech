@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { CriptoAPI, ValoresFallbackType } from '../types';
 
 interface Cripto {
    id: string;
@@ -10,14 +11,20 @@ interface Cripto {
    ultimaAtualizacao: string;
 }
 
-interface CriptoAPI {
-   id: string;
-   symbol: string;
-   name: string;
-   current_price: number;
-   price_change_percentage_24h: number;
-   image: string;
-   last_updated: string;
+// Adicionar interface para o item da API
+interface ApiCriptoItem {
+   symbol?: string;
+   sigla?: string;
+   ticker?: string;
+   preco?: number;
+   valor?: number;
+   price?: number;
+   current_price?: number;
+   variacao?: number;
+   change?: number;
+   dailyChange?: number;
+   price_change_percentage_24h?: number;
+   dataAtualizacao?: string;
 }
 
 const Criptomoedas: React.FC = () => {
@@ -72,7 +79,12 @@ const Criptomoedas: React.FC = () => {
          ];
 
          // Valores atualizados de fallback (dados reais atuais)
-         const valoresFallback = {
+         const valoresFallback: ValoresFallbackType<{
+            valor: number;
+            sigla: string;
+            variacao: number;
+            nome: string;
+         }> = {
             bitcoin: {
                valor: 342750.42,
                sigla: 'BTC',
@@ -155,8 +167,9 @@ const Criptomoedas: React.FC = () => {
 
             // Mapear os dados da Partnr API para o formato do componente
             const criptosMapeadas = criptosParaBuscar.map((cripto, index) => {
+               // Atualizar a chamada do find com a tipagem
                const dadoCripto = dadosAPI.find(
-                  (item) =>
+                  (item: ApiCriptoItem) =>
                      item.symbol === cripto.sigla ||
                      item.sigla === cripto.sigla ||
                      item.ticker === cripto.sigla

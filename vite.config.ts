@@ -1,8 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
    plugins: [react()],
-   base: '/invest-tech',
+   base: '/invest-tech/',
+   build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: true,
+      chunkSizeWarningLimit: 1000,
+   },
+   resolve: {
+      alias: {
+         '@': '/src',
+      },
+   },
 });

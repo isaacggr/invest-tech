@@ -1,12 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-
-export interface DadosMensais {
-   mes: number;
-   juros: number;
-   totalInvestido: number;
-   jurosAcumulado: number;
-   totalAcumulado: number;
-}
+import { DadosMensais } from '../types';
 
 interface CalculadoraContextType {
    valorInicial: number;
@@ -80,7 +73,10 @@ export const CalculadoraProvider: React.FC<CalculadoraProviderProps> = ({
       // Adiciona o mês 0 (inicial)
       dadosMensaisCalculados.push({
          mes: 0,
-         juros: 0,
+         valorInvestido: valorInicial,
+         rendimento: 0,
+         valorAcumulado: valorInicial,
+         aporteMensal: valorMensal,
          totalInvestido: valorInicial,
          jurosAcumulado: 0,
          totalAcumulado: valorInicial,
@@ -106,9 +102,12 @@ export const CalculadoraProvider: React.FC<CalculadoraProviderProps> = ({
          // Adiciona os dados deste mês ao array
          dadosMensaisCalculados.push({
             mes: i,
-            juros: jurosArredondado,
-            totalInvestido: parseFloat(totalAportado.toFixed(2)),
-            jurosAcumulado: parseFloat(totalJurosGerados.toFixed(2)),
+            valorInvestido: totalAportado,
+            rendimento: jurosArredondado,
+            valorAcumulado: saldoArredondado,
+            aporteMensal: valorMensal,
+            totalInvestido: totalAportado,
+            jurosAcumulado: totalJurosGerados,
             totalAcumulado: saldoArredondado,
          });
       }

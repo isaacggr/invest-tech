@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { IndiceAPI, ValoresFallbackType } from '../types';
 
 interface Indice {
    id: string;
@@ -10,15 +11,9 @@ interface Indice {
    ultimaAtualizacao: string;
 }
 
-interface IndiceAPI {
-   symbol: string;
-   name: string;
-   close: number;
-   change: number;
-   volume: number;
-   market_cap: number;
-   updated_at: string;
-}
+type ValoresFallbackIndices = {
+   [key: string]: { valor: number; variacao: number };
+};
 
 const IndicesB3: React.FC = () => {
    const [indices, setIndices] = useState<Indice[]>([]);
@@ -71,8 +66,10 @@ const IndicesB3: React.FC = () => {
             { sigla: 'ISEE', nome: 'Índice de Sustentabilidade' },
          ];
 
-         // Valores atualizados de fallback (dados reais atuais)
-         const valoresFallback = {
+         const valoresFallback: ValoresFallbackType<{
+            valor: number;
+            variacao: number;
+         }> = {
             IBOV: { valor: 131474.73, variacao: 0.49 },
             IBXX: { valor: 56830.25, variacao: 0.42 },
             SMLL: { valor: 3240.15, variacao: 0.25 },
@@ -108,17 +105,67 @@ const IndicesB3: React.FC = () => {
             const dadosAPI = await resposta.json();
 
             // Mapear os dados da Partnr API para o formato do componente
-            const indicesMapeados = indicesParaBuscar.map((indice, index) => {
-               const dadoIndice = dadosAPI.find(
-                  (item) =>
-                     item.sigla === indice.sigla || item.symbol === indice.sigla
-               );
-
-               if (!dadoIndice || !dadoIndice.valor) {
-                  console.warn(
-                     `API não retornou dados válidos para ${indice.sigla}, usando fallback`
+            const indicesMapeados = indicesParaBuscar.map(
+               (indice: { sigla: string; nome: string }, index: number) => {
+                  const dadoIndice = dadosAPI.find(
+                     (item: IndiceAPI) =>
+                        item.symbol === indice.sigla ||
+                        item.sigla === indice.sigla
                   );
-                  // Usar fallback se a API não retornar dados para este índice
+
+                  if (!dadoIndice || !dadoIndice.valor) {
+                     console.warn(
+                        `API não retornou dados válidos para ${indice.sigla}, usando fallback`
+                     );
+                     // Usar fallback se a API não retornar dados para este índice
+                     const fallback = valoresFallback[indice.sigla];
+                     return {
+                        id: String(index + 1),
+                        nome: indice.nome,
+                        sigla: indice.sigla,
+                        valor: fallback.valor,
+                        variacao: fallback.variacao,
+                        cor: fallback.variacao >= 0 ? 'verde' : 'vermelho',
+                        ultimaAtualizacao: formatarDataHora() + ' (estimado)',
+                     };
+                  }
+
+                  return {
+                     id: String(index + 1),
+                     nome: indice.nome,
+                     sigla: indice.sigla,
+                     valor:
+                        dadoIndice.valor ||
+                        dadoIndice.close ||
+                        dadoIndice.value,
+                     variacao:
+                        dadoIndice.variacao ||
+                        dadoIndice.change ||
+                        dadoIndice.dailyChange ||
+                        0,
+                     cor:
+                        (dadoIndice.variacao ||
+                           dadoIndice.change ||
+                           dadoIndice.dailyChange ||
+                           0) >= 0
+                           ? 'verde'
+                           : 'vermelho',
+                     ultimaAtualizacao: dadoIndice.dataAtualizacao
+                        ? formatarDataAPI(dadoIndice.dataAtualizacao)
+                        : formatarDataHora(),
+                  };
+               }
+            );
+
+            setIndices(indicesMapeados);
+            setUltimaAtualizacao(formatarDataHora());
+            setCarregando(false);
+         } catch (erro) {
+            console.error('Erro ao buscar dados da Partnr API:', erro);
+
+            // Usar valores de fallback em caso de falha na API
+            const indicesFallback = indicesParaBuscar.map(
+               (indice: { sigla: string; nome: string }, index: number) => {
                   const fallback = valoresFallback[indice.sigla];
                   return {
                      id: String(index + 1),
@@ -130,50 +177,7 @@ const IndicesB3: React.FC = () => {
                      ultimaAtualizacao: formatarDataHora() + ' (estimado)',
                   };
                }
-
-               return {
-                  id: String(index + 1),
-                  nome: indice.nome,
-                  sigla: indice.sigla,
-                  valor:
-                     dadoIndice.valor || dadoIndice.close || dadoIndice.value,
-                  variacao:
-                     dadoIndice.variacao ||
-                     dadoIndice.change ||
-                     dadoIndice.dailyChange ||
-                     0,
-                  cor:
-                     (dadoIndice.variacao ||
-                        dadoIndice.change ||
-                        dadoIndice.dailyChange ||
-                        0) >= 0
-                        ? 'verde'
-                        : 'vermelho',
-                  ultimaAtualizacao: dadoIndice.dataAtualizacao
-                     ? formatarDataAPI(dadoIndice.dataAtualizacao)
-                     : formatarDataHora(),
-               };
-            });
-
-            setIndices(indicesMapeados);
-            setUltimaAtualizacao(formatarDataHora());
-            setCarregando(false);
-         } catch (erro) {
-            console.error('Erro ao buscar dados da Partnr API:', erro);
-
-            // Usar valores de fallback em caso de falha na API
-            const indicesFallback = indicesParaBuscar.map((indice, index) => {
-               const fallback = valoresFallback[indice.sigla];
-               return {
-                  id: String(index + 1),
-                  nome: indice.nome,
-                  sigla: indice.sigla,
-                  valor: fallback.valor,
-                  variacao: fallback.variacao,
-                  cor: fallback.variacao >= 0 ? 'verde' : 'vermelho',
-                  ultimaAtualizacao: formatarDataHora() + ' (estimado)',
-               };
-            });
+            );
 
             setIndices(indicesFallback);
             setUltimaAtualizacao(formatarDataHora() + ' (dados estimados)');

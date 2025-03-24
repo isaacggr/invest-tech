@@ -9,10 +9,10 @@ import {
    Tooltip,
    Legend,
    Filler,
+   type ChartOptions,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-// Registrar componentes do Chart.js
 ChartJS.register(
    CategoryScale,
    LinearScale,
@@ -24,24 +24,23 @@ ChartJS.register(
    Filler
 );
 
-interface Dados {
+interface DadosMensais {
    mes: number;
-   rendimento: number;
-   valorInvestido: number;
-   valorAcumulado: number;
+   totalInvestido: number;
+   jurosAcumulado: number;
+   totalAcumulado: number;
 }
 
 interface GraficoInvestimentoProps {
-   dados: Dados[];
+   dadosMensais: DadosMensais[];
 }
 
 const GraficoInvestimento: React.FC<GraficoInvestimentoProps> = React.memo(
-   ({ dados }) => {
+   ({ dadosMensais }) => {
       const [isMobile, setIsMobile] = useState<boolean>(
          window.innerWidth < 768
       );
 
-      // Detecta dispositivo móvel
       useEffect(() => {
          const checkMobile = () => {
             setIsMobile(window.innerWidth < 768);
@@ -55,8 +54,7 @@ const GraficoInvestimento: React.FC<GraficoInvestimentoProps> = React.memo(
          };
       }, []);
 
-      // Se não houver dados, mostra mensagem
-      if (!dados || dados.length === 0) {
+      if (!dadosMensais || dadosMensais.length === 0) {
          return (
             <div className="mensagem-info mensagem-card">
                <p>
@@ -70,33 +68,14 @@ const GraficoInvestimento: React.FC<GraficoInvestimentoProps> = React.memo(
          );
       }
 
-      // Filtra os dados para dispositivos móveis
-      const filtrarDados = () => {
-         if (!isMobile || dados.length <= 36) {
-            return dados;
-         }
-
-         const intervalo = Math.max(1, Math.floor(dados.length / 36));
-         return dados.filter(
-            (_, index) =>
-               index === 0 ||
-               index === dados.length - 1 ||
-               index % intervalo === 0 ||
-               dados[index].mes % 12 === 0 // Incluir anos completos
-         );
-      };
-
-      const dadosFiltrados = filtrarDados();
-
-      // Preparar dados para o gráfico
       const graficoData = {
-         labels: dadosFiltrados.map((item) =>
+         labels: dadosMensais.map((item) =>
             isMobile ? `${item.mes}` : `Mês ${item.mes}`
          ),
          datasets: [
             {
                label: 'Valor Investido',
-               data: dadosFiltrados.map((item) => item.valorInvestido),
+               data: dadosMensais.map((item) => item.totalInvestido),
                borderColor: '#6366f1',
                backgroundColor: 'rgba(99, 102, 241, 0.1)',
                fill: true,
@@ -107,9 +86,7 @@ const GraficoInvestimento: React.FC<GraficoInvestimentoProps> = React.memo(
             },
             {
                label: 'Rendimentos',
-               data: dadosFiltrados.map(
-                  (item) => item.valorAcumulado - item.valorInvestido
-               ),
+               data: dadosMensais.map((item) => item.jurosAcumulado),
                borderColor: '#10b981',
                backgroundColor: 'rgba(16, 185, 129, 0.1)',
                fill: true,
@@ -120,7 +97,7 @@ const GraficoInvestimento: React.FC<GraficoInvestimentoProps> = React.memo(
             },
             {
                label: 'Valor Total',
-               data: dadosFiltrados.map((item) => item.valorAcumulado),
+               data: dadosMensais.map((item) => item.totalAcumulado),
                borderColor: '#f59e0b',
                backgroundColor: 'rgba(245, 158, 11, 0.1)',
                fill: false,
@@ -132,20 +109,19 @@ const GraficoInvestimento: React.FC<GraficoInvestimentoProps> = React.memo(
          ],
       };
 
-      // Opções do gráfico
-      const graficoOptions = {
+      const graficoOptions: ChartOptions<'line'> = {
          responsive: true,
          maintainAspectRatio: false,
          animation: {
             duration: 1000,
          },
          interaction: {
-            mode: 'index' as const,
+            mode: 'index',
             intersect: false,
          },
          plugins: {
             legend: {
-               position: 'top' as const,
+               position: 'top',
                labels: {
                   boxWidth: 12,
                   padding: isMobile ? 10 : 20,
@@ -187,17 +163,18 @@ const GraficoInvestimento: React.FC<GraficoInvestimentoProps> = React.memo(
                },
             },
             y: {
+               type: 'linear',
                grid: {
-                  drawBorder: false,
+                  display: true,
+                  color: 'rgba(0,0,0,0.1)',
                },
                ticks: {
-                  callback: function (value: any) {
+                  callback: (value) => {
                      return new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
                         notation: 'compact',
-                        compactDisplay: 'short',
-                     }).format(value);
+                     }).format(Number(value));
                   },
                   font: {
                      size: isMobile ? 9 : 11,
