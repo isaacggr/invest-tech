@@ -15,4 +15,9 @@ export default defineConfig({
          '@': '/src',
       },
    },
+   envPrefix: 'VITE_',
+   server: {
+      port: 5173,
+      open: true,
+   },
 });

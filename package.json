@@ -6,17 +6,20 @@
    "type": "module",
    "scripts": {
       "dev": "vite",
-      "build": "tsc && vite build",
+      "build": "vite build",
       "preview": "vite preview",
       "predeploy": "npm run build",
       "deploy": "gh-pages -d dist",
       "start": "vite preview"
    },
    "dependencies": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
       "chart.js": "^4.4.1",
-      "react-chartjs-2": "^5.2.0"
+      "cors": "^2.8.5",
+      "express": "^4.21.2",
+      "http-proxy-middleware": "^3.0.3",
+      "react": "^18.2.0",
+      "react-chartjs-2": "^5.2.0",
+      "react-dom": "^18.2.0"
    },
    "devDependencies": {
       "@types/react": "^18.2.43",

@@ -19,21 +19,26 @@ const Footer: React.FC = () => {
                      Isaac Gregorio
                   </a>
                </p>
+               <p className="disclaimer">
+                  Os valores e informações apresentados são meramente ilustrativos e não
+                  constituem recomendação de investimento.
+               </p>
             </div>
             <div className="footer-credits">
                <p className="api-credits">
                   Dados fornecidos por{' '}
                   <a
-                     href="https://b3api.me/docs"
+                     href="https://brapi.dev"
                      target="_blank"
                      rel="noopener noreferrer"
                      className="highlight"
                   >
-                     B3API
+                     BRAPI
                   </a>
                </p>
-               <p className="disclaimer">
-                  Valores simulados apenas para fins educacionais
+               <p className="legal-disclaimer">
+                  Antes de investir, consulte um profissional qualificado e verifique seus
+                  objetivos, situação financeira e necessidades individuais.
                </p>
             </div>
          </div>

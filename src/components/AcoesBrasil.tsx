@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AcaoAPI, ValoresFallbackType } from '../types';
+import { isMarketOpen, getNextUpdate } from '../utils/marketTime';
+import { buildUrl, BrapiQuoteItem, fetchMarketData } from '../config/api';
 
 interface Acao {
    id: string;
@@ -12,19 +13,6 @@ interface Acao {
 }
 
 // Adicionar interface para o item da API
-interface ApiItem {
-   ticker?: string;
-   symbol?: string;
-   codigo?: string;
-   preco?: number;
-   valor?: number;
-   close?: number;
-   price?: number;
-   variacao?: number;
-   change?: number;
-   dailyChange?: number;
-   dataAtualizacao?: string;
-}
 
 const AcoesBrasil: React.FC = () => {
    const [acoes, setAcoes] = useState<Acao[]>([]);
@@ -60,168 +48,175 @@ const AcoesBrasil: React.FC = () => {
       }).format(data);
    };
 
+   // Função para buscar dados simulados das ações
+   const buscarAcoesSimuladas = () => {
+      try {
+         setCarregando(true);
+
+         // Dados estáticos para simulação
+         const dadosSimulados = [
+            {
+               id: '1',
+               nome: 'Petrobras',
+               codigo: 'PETR4',
+               valor: 37.92,
+               variacao: 0.85,
+            },
+            {
+               id: '2',
+               nome: 'Vale',
+               codigo: 'VALE3',
+               valor: 66.85,
+               variacao: -0.48,
+            },
+            {
+               id: '3',
+               nome: 'Itaú Unibanco',
+               codigo: 'ITUB4',
+               valor: 34.92,
+               variacao: 0.56,
+            },
+            {
+               id: '4',
+               nome: 'Klabin',
+               codigo: 'KLBN4',
+               valor: 24.32,
+               variacao: 0.65,
+            },
+            {
+               id: '5',
+               nome: 'Taesa',
+               codigo: 'TAEE3',
+               valor: 38.75,
+               variacao: -0.18,
+            },
+            {
+               id: '6',
+               nome: 'Banco do Brasil',
+               codigo: 'BBAS3',
+               valor: 54.92,
+               variacao: 0.82,
+            },
+            {
+               id: '7',
+               nome: 'BB Seguridade',
+               codigo: 'BBSE3',
+               valor: 33.45,
+               variacao: 0.25,
+            },
+            {
+               id: '8',
+               nome: 'Auren Energia',
+               codigo: 'AURE3',
+               valor: 12.82,
+               variacao: -0.34,
+            },
+         ].map((item) => ({
+            ...item,
+            cor: item.variacao >= 0 ? 'verde' : 'vermelho',
+            ultimaAtualizacao: formatarDataHora(),
+         }));
+
+         setAcoes(dadosSimulados);
+         setUltimaAtualizacao(formatarDataHora());
+         setErro(null);
+      } catch (error) {
+         console.error('Erro ao carregar dados simulados:', error);
+         setErro(
+            'Erro ao carregar ações. Tentando novamente no próximo horário de mercado.'
+         );
+      } finally {
+         setCarregando(false);
+      }
+   };
+
    // Função para buscar dados das ações
    const buscarAcoes = async () => {
       try {
          setCarregando(true);
 
-         // Lista de ações para buscar
-         const acoesParaBuscar = [
-            { codigo: 'PETR4', nome: 'Petrobras' },
-            { codigo: 'VALE3', nome: 'Vale' },
-            { codigo: 'ITUB4', nome: 'Itaú Unibanco' },
-            { codigo: 'BBDC4', nome: 'Bradesco' },
-            { codigo: 'ABEV3', nome: 'Ambev' },
-            { codigo: 'B3SA3', nome: 'B3' },
-            { codigo: 'MGLU3', nome: 'Magazine Luiza' },
-            { codigo: 'WEGE3', nome: 'WEG' },
+         const acoesDesejadas = [
+            { symbol: 'PETR4', nome: 'Petrobras' },
+            { symbol: 'VALE3', nome: 'Vale' },
+            { symbol: 'ITUB4', nome: 'Itaú Unibanco' },
+            { symbol: 'KLBN4', nome: 'Klabin' },
+            { symbol: 'TAEE3', nome: 'Taesa' },
+            { symbol: 'BBAS3', nome: 'Banco do Brasil' },
+            { symbol: 'BBSE3', nome: 'BB Seguridade' },
+            { symbol: 'AURE3', nome: 'Auren Energia' },
          ];
 
-         // Valores atualizados de fallback (dados reais atuais)
-         const valoresFallback: ValoresFallbackType<{
-            valor: number;
-            variacao: number;
-         }> = {
-            PETR4: { valor: 37.92, variacao: 0.85 },
-            VALE3: { valor: 66.85, variacao: -0.48 },
-            ITUB4: { valor: 34.92, variacao: 0.56 },
-            BBDC4: { valor: 15.85, variacao: 0.33 },
-            ABEV3: { valor: 13.42, variacao: -0.2 },
-            B3SA3: { valor: 12.78, variacao: 0.42 },
-            MGLU3: { valor: 1.89, variacao: 2.45 },
-            WEGE3: { valor: 36.82, variacao: 0.22 },
-         };
-
-         // Usando a API da Partnr para obter dados em tempo real
-         // Observe que você precisará obter uma chave de API registrando-se em https://partnr.ai/partnr-api
-
-         try {
-            // Headers necessários para autenticação na API da Partnr
-            const headers = {
-               'Content-Type': 'application/json',
-               Authorization: 'Bearer SEU_TOKEN_PARTNR_API', // Substitua pelo seu token da Partnr API
-            };
-
-            // Códigos das ações que queremos buscar
-            const simbolos = acoesParaBuscar.map((acao) => acao.codigo);
-
-            // Fazer uma única chamada à API para obter todas as ações
-            const resposta = await fetch(
-               `https://api.partnr.ai/cotacoes?symbols=${simbolos.join(',')}`,
-               {
-                  method: 'GET',
-                  headers: headers,
-               }
-            );
-
-            if (!resposta.ok) {
-               throw new Error(
-                  `Erro na requisição à Partnr API: ${resposta.status}`
-               );
-            }
-
-            const dadosAPI = await resposta.json();
-
-            // Mapear os dados da Partnr API para o formato do componente
-            const acoesMapeadas = acoesParaBuscar.map((acao, index) => {
-               // Atualizar a chamada do find com a tipagem
-               const dadoAcao = dadosAPI.find(
-                  (item: ApiItem) =>
-                     item.ticker === acao.codigo ||
-                     item.symbol === acao.codigo ||
-                     item.codigo === acao.codigo
-               );
-
-               if (!dadoAcao || !dadoAcao.preco) {
-                  console.warn(
-                     `API não retornou dados válidos para ${acao.codigo}, usando fallback`
+         const acoesProcessadas = await Promise.all(
+            acoesDesejadas.map(async (acao, index) => {
+               try {
+                  // Chamada direta à API sem proxy
+                  const response = await fetch(
+                     `https://brapi.dev/api/quote/${encodeURIComponent(
+                        acao.symbol
+                     )}?token=${import.meta.env.VITE_BRAPI_TOKEN}`
                   );
-                  // Usar fallback se a API não retornar dados para esta ação
-                  const fallback = valoresFallback[acao.codigo];
+
+                  if (!response.ok) {
+                     throw new Error(`Erro ao buscar ${acao.nome}`);
+                  }
+
+                  const data = await response.json();
+                  const item = data.results[0];
+
                   return {
                      id: String(index + 1),
                      nome: acao.nome,
-                     codigo: acao.codigo,
-                     valor: fallback.valor,
-                     variacao: fallback.variacao,
-                     cor: fallback.variacao >= 0 ? 'verde' : 'vermelho',
-                     ultimaAtualizacao: formatarDataHora() + ' (estimado)',
+                     codigo: acao.symbol,
+                     valor: item.regularMarketPrice,
+                     variacao: item.regularMarketChangePercent,
+                     cor:
+                        item.regularMarketChangePercent >= 0
+                           ? 'verde'
+                           : 'vermelho',
+                     ultimaAtualizacao: formatarDataHora(),
                   };
+               } catch (error) {
+                  console.error(`Erro ao buscar ${acao.nome}:`, error);
+                  return null;
                }
+            })
+         );
 
-               return {
-                  id: String(index + 1),
-                  nome: acao.nome,
-                  codigo: acao.codigo,
-                  valor:
-                     dadoAcao.preco ||
-                     dadoAcao.valor ||
-                     dadoAcao.close ||
-                     dadoAcao.price,
-                  variacao:
-                     dadoAcao.variacao ||
-                     dadoAcao.change ||
-                     dadoAcao.dailyChange ||
-                     0,
-                  cor:
-                     (dadoAcao.variacao ||
-                        dadoAcao.change ||
-                        dadoAcao.dailyChange ||
-                        0) >= 0
-                        ? 'verde'
-                        : 'vermelho',
-                  ultimaAtualizacao: dadoAcao.dataAtualizacao
-                     ? formatarDataAPI(dadoAcao.dataAtualizacao)
-                     : formatarDataHora(),
-               };
-            });
+         const acoesValidas = acoesProcessadas.filter((acao) => acao !== null);
 
-            setAcoes(acoesMapeadas);
+         if (acoesValidas.length > 0) {
+            setAcoes(acoesValidas);
             setUltimaAtualizacao(formatarDataHora());
-            setCarregando(false);
-         } catch (erro) {
-            console.error('Erro ao buscar dados da Partnr API:', erro);
-
-            // Usar valores de fallback em caso de falha na API
-            const acoesFallback = acoesParaBuscar.map((acao, index) => {
-               const fallback = valoresFallback[acao.codigo];
-               return {
-                  id: String(index + 1),
-                  nome: acao.nome,
-                  codigo: acao.codigo,
-                  valor: fallback.valor,
-                  variacao: fallback.variacao,
-                  cor: fallback.variacao >= 0 ? 'verde' : 'vermelho',
-                  ultimaAtualizacao: formatarDataHora() + ' (estimado)',
-               };
-            });
-
-            setAcoes(acoesFallback);
-            setUltimaAtualizacao(formatarDataHora() + ' (dados estimados)');
-            setCarregando(false);
+            setErro(null);
+         } else {
+            throw new Error('Nenhuma ação pôde ser carregada');
          }
       } catch (error) {
-         setErro(
-            'Não foi possível carregar as ações. Tente novamente mais tarde.'
-         );
+         console.error('Erro:', error);
+         setErro('Erro ao carregar ações');
+         buscarAcoesSimuladas();
+      } finally {
          setCarregando(false);
-         console.error('Erro ao buscar dados das ações:', error);
       }
    };
 
-   // Buscar dados iniciais e configurar atualização periódica
    useEffect(() => {
-      buscarAcoes();
-
-      // Atualizar a cada 30 segundos (para não sobrecarregar a API)
-      const intervalId = setInterval(() => {
-         buscarAcoes();
-      }, 30000);
-
-      // Limpar o intervalo quando o componente for desmontado
-      return () => {
-         clearInterval(intervalId);
+      const fetchData = async () => {
+         await buscarAcoes();
       };
+
+      // Limitar chamadas para 2 vezes ao dia: uma às 10:00 e outra às 17:00
+      const now = new Date();
+      const nextUpdate =
+         now.getHours() < 10
+            ? new Date(now.setHours(10, 0, 0, 0))
+            : new Date(now.setHours(17, 0, 0, 0));
+      const delay = nextUpdate.getTime() - Date.now();
+
+      fetchData();
+      const intervalId = setInterval(fetchData, 12 * 60 * 60 * 1000); // 12 horas
+
+      return () => clearInterval(intervalId);
    }, []);
 
    // Formatar o valor numérico para moeda

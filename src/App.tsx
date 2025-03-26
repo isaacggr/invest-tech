@@ -4,9 +4,9 @@ import GraficoInvestimento from './components/GraficoInvestimento';
 import TabelaDetalhes from './components/TabelaDetalhes';
 import IndicesB3 from './components/IndicesB3';
 import AcoesBrasil from './components/AcoesBrasil';
-import Criptomoedas from './components/Criptomoedas';
 import Footer from './components/Footer';
 import ThemeToggle from './components/ThemeToggle';
+import FundosImobiliarios from './components/FundosImobiliarios';
 import { DadosMensais } from './types';
 
 const App: React.FC = () => {
@@ -180,7 +180,8 @@ const App: React.FC = () => {
                            }
                            placeholder="0,00"
                         />
-                        <span className="input-suffix">%</span>
+                        <span className="input-suffix">%</span>{' '}
+                        {/* Corrigido o fechamento da tag */}
                      </div>
                   </div>
 
@@ -260,8 +261,8 @@ const App: React.FC = () => {
          {/* Principais Ações Brasileiras */}
          <AcoesBrasil />
 
-         {/* Principais Criptomoedas */}
-         <Criptomoedas />
+         {/* Fundos Imobiliários */}
+         <FundosImobiliarios />
 
          {/* Footer */}
          <Footer />
